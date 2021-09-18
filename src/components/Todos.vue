@@ -98,41 +98,37 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 name: "Todos";
 export default {
   data: function () {
     return {
-      todos: [
-        {
-          id: 1,
-          content: "Thay doi noi dung 1",
-          checked: false,
-          completed: false,
-        },
-        {
-          id: 2,
-          content: "Change Noi dung 2",
-          checked: false,
-          completed: false,
-        },
-      ],
+      todos: [],
       textContent: "",
-      code: 2,
     };
+  },
+  created(){
+     axios.get('http://localhost:8000/api/tasks').
+     then(Response=>{
+       this.todos = Response.data.data;
+     })
   },
   methods: {
     addTask: function () {
       if (this.textContent.trim().length === 0) {
         return;
       }
-      this.code++;
-      this.todos.push({
-        id: this.code,
+      let params = {
         content: this.textContent,
         checked: false,
         completed: false,
-      });
-      this.textContent = "";
+      }
+
+      axios.post('http://localhost:8000/api/tasks',params).
+        then(Response=>{
+        this.todos = Response.data.data;
+     })
     },
     delTask: function (index) {
       if (confirm("ban co chac chan xoa task nay khong?")) {
