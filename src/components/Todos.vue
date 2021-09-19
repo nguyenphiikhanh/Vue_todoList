@@ -2,7 +2,7 @@
   <div class="row todo-content">
     <div class="col-md-6">
       <div class="todo-list not-done">
-        <h1>TODOS</h1>
+        <h1>TODO List App</h1>
         <div class="input-group mb-3">
           <input
             type="text"
@@ -22,7 +22,7 @@
           </div>
         </div>
         <hr />
-        <ul class="list-unstyled" v-for="(todo, index) in todos" :key="todo.id">
+        <ul class="list-unstyled" v-for="todo in todos" :key="todo.id">
           <li class="ui-state-default li-items mt-1">
             <div class="input-group">
               <div class="input-group-prepend">
@@ -42,7 +42,7 @@
                 v-model="todo.content"
               />
               <div class="input-group-append remove-icon">
-                <span class="input-group-text" @click="delTask(index)"
+                <span class="input-group-text" @click="delTask(todo.id)"
                   >&#10060;</span
                 >
               </div>
@@ -55,7 +55,7 @@
             <div class="form-check form-check-inline">
               &#9989;
               <label
-                @click="checkAll(true)"
+                @click="checkAll(1)"
                 class="form-check-label"
                 for="inlineRadio1"
                 >Check all</label
@@ -64,7 +64,7 @@
             <div class="form-check form-check-inline">
               &#10062;
               <label
-                @click="checkAll(false)"
+                @click="checkAll(0)"
                 class="form-check-label"
                 for="inlineRadio2"
                 >UnCheck all</label
@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 name: "Todos";
 export default {
@@ -108,11 +108,10 @@ export default {
       textContent: "",
     };
   },
-  created(){
-     axios.get('http://localhost:8000/api/tasks').
-     then(Response=>{
-       this.todos = Response.data.data;
-     })
+  created() {
+    axios.get("http://localhost:8000/api/tasks").then((Response) => {
+      this.todos = Response.data.data;
+    });
   },
   methods: {
     addTask: function () {
@@ -123,16 +122,20 @@ export default {
         content: this.textContent,
         checked: false,
         completed: false,
-      }
+      };
 
-      axios.post('http://localhost:8000/api/tasks',params).
-        then(Response=>{
+      axios.post("http://localhost:8000/api/tasks", params).then((Response) => {
         this.todos = Response.data.data;
-     })
+        this.textContent = "";
+      });
     },
     delTask: function (index) {
       if (confirm("ban co chac chan xoa task nay khong?")) {
-        this.todos.splice(index, 1);
+        axios
+          .get("http://localhost:8000/api/remove", { params: { id: index } })
+          .then((Response) => {
+            this.todos = Response.data.data;
+          });
       }
     },
     checkAll: function (flag) {
@@ -152,9 +155,12 @@ export default {
     },
     delAll: function () {
       if (confirm("Ban co chac chan xoa cac task nay?")) {
-        this.todos = this.todos.filter(function (item) {
-          return !item.checked;
-        });
+        let params = this.todos;
+        axios
+          .post("http://localhost:8000/api/multiRemove", {params})
+          .then((Response) => {
+            this.todos = Response.data.data;
+          });
       }
     },
   },
