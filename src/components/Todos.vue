@@ -145,11 +145,10 @@ export default {
     },
     doneAll: function () {
       if (confirm("Hoan thanh cac task nay?")) {
-        this.todos.filter(function (item) {
-          if (item.checked) {
-            item.checked = false;
-            item.completed = true;
-          }
+        let params = this.todos;
+        axios.post('http://localhost:8000/api/doneTask',{params}).
+        then(Response=>{
+          this.todos = Response.data.data;
         });
       }
     },
@@ -157,7 +156,7 @@ export default {
       if (confirm("Ban co chac chan xoa cac task nay?")) {
         let params = this.todos;
         axios
-          .post("http://localhost:8000/api/multiRemove", {params})
+          .post("http://localhost:8000/api/multiRemove",{params})
           .then((Response) => {
             this.todos = Response.data.data;
           });
